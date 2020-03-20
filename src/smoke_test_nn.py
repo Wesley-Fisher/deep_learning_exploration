@@ -27,9 +27,8 @@ Y = X * FACTOR
 
 # Create Model
 input_layer = Input(shape=(1,))
-l1 =Dense(2, activation='relu')(input_layer)
-l2 =Dense(2, activation='relu')(l1)
-output_layer = Dense(1)(l2)
+l1 =Dense(3, activation='relu')(input_layer)
+output_layer = Dense(1)(l1)
 
 model = Model(inputs=input_layer, outputs=output_layer)
 
@@ -48,21 +47,21 @@ model.summary()
 hist = model.fit(x=X_train, y=Y_train,
                  validation_data=(X_test, Y_test),
                  verbose=1, callbacks=None,  shuffle=True,
-                 batch_size=16, epochs=500)
+                 batch_size=32, epochs=100)
 print(hist.history.keys())
 
 plt.figure(1)
-plt.plot(hist.history["acc"], label="Train Acc")
-plt.plot(hist.history['val_acc'], label="Test Acc")
-#plt.plot(hist.history['loss'], label="Train Loss")
-#plt.plot(hist.history['val_loss'], label="Test Loss")
+#plt.plot(hist.history["acc"], label="Train Acc")
+#plt.plot(hist.history['val_acc'], label="Test Acc")
+plt.plot(hist.history['loss'], label="Train Loss")
+plt.plot(hist.history['val_loss'], label="Test Loss")
 plt.title("Training and Validation Accuracy")
 plt.legend()
 
 Ypred = model.predict(X)
 plt.figure(2)
-plt.plot(X, label="Truth")
-plt.plot(Ypred, label="Predicted")
+plt.plot(X, Y, label="Truth")
+plt.plot(X, Ypred, label="Predicted")
 plt.title("Predicted Datas")
 plt.legend()
 plt.show()

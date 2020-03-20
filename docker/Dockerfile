@@ -5,6 +5,7 @@ WORKDIR /workspace
 
 COPY requirements.txt /workspace/requirements.txt
 
+ENV DEBIAN_FRONTEND=noninteractive 
 RUN apt update && \
     apt install -y \
       python3-pip \
