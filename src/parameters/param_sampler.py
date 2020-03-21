@@ -10,59 +10,34 @@ class ParamSampler:
     def __init__(self):
         pass
     
-    def sample_parameters_basic(self, param_desc, method='default'):
+    def sample_parameters_default(self, param_desc):
         params = {}
-
-        if method == 'default':
-            sampler = self.sample_default
-        elif method == 'random':
-            sampler = self.sample_random
-        else:
-            raise KeyError('No method key [%s]' % method)
-
-        for param in param_desc:
-            x = sampler(param_desc[param])
-            params[param] = x
+        for p in param_desc.keys():
+            x, xn = param_desc[p].sample_default()
+            params[p] = x
         return params
-    
-    def sample_default(self, description):
-        return description[2]
-    
-    def sample_random(self, description):
-        low = description[0]
-        high = description[1]
-        vtype = description[3]
-        dist = description[4]
+    def sample_parameters_random(self, param_desc):
+        params = {}
+        for p in param_desc.keys():
+            x, xn = param_desc[p].sample_random()
+            params[p] = x
+        return params
 
-        def sample_between(low, high):
-            return random.uniform(low, high)
+    def sample_parameters_gp_explore(self, description, history, key):
 
-        if dist == 'lin':
-            low = low
-            high = high
-            x = sample_between(low, high)
-            x = x
-        elif dist == 'log10':
-            low = math.log10(low)
-            high = math.log10(high)
-            x = sample_between(low, high)
-            x = math.pow(10, x)
-        else:
-            raise KeyError('Unknown dist key [%s]' % dist)
+        # One some chance, just take random parameters
+        random.seed(time.time)
+        if random.randint(0, 100) > 90:
+            return self.sample_parameters_basic(description, 'random')
         
-        if vtype == 'int':
-            return int(x)
-        elif vtype == 'float':
-            return float(x)
-        else:
-            raise KeyError('Unknown vtype key [%s]' % vtype)
-
-    def sample_parameters_gp(self, description, history, key):
+        return self.sample_parameters_gp(description, history, key)
+    
+    def sample_parameters_gp(self, param_desc, history, key):
         if len(history.history) == 0:
-            return self.sample_parameters(description, 'default')
+            return self.sample_parameters_default(param_desc)
         
-        input_params = history.in_params
-        X, Y = self.create_gp_data(history, input_params, key)
+        in_param_ordering = history.in_params
+        X, Y = self.create_gp_data(history, in_param_ordering, param_desc, key)
         
         # Based on maximization
         Y = -np.log(Y)
@@ -74,13 +49,16 @@ class ParamSampler:
 
         # Set some defaults
         EI_max = 0
-        xd_max = self.sample_parameters_basic(description, 'default')
+        xd_max = self.sample_parameters_default(param_desc)
 
-        for i in range(0, 100*len(input_params)):
-            xd = self.sample_parameters_basic(description, 'random')
-            x = []
-            for p in input_params:
-                x.append(xd[p])
+        for i in range(0, 100*len(in_param_ordering)):
+            x = [] # Values to sample
+            xd = {} # Dict of params to output
+            
+            for p in in_param_ordering:
+                xa, xn = param_desc[p].sample_random()
+                x.append(xn)
+                xd[p] = xa
             x = np.array(x)
 
             EI = self.calculate_EI(gpr, x, fxp)
@@ -108,16 +86,19 @@ class ParamSampler:
         return EI
 
 
-    def create_gp_data(self, history, params, key):
+    def create_gp_data(self, history, param_keys_ordered, param_desc, key):
         
         xs = []
         ys = []
 
         for h in history.history:
             x = []
-            for p in params:
-                x.append(h[p])
+            for p in param_keys_ordered:
+                xi = h[p]
+                xn = param_desc[p].normalize(xi)
 
+                x.append(xn)
+            
             x = np.array(x)
             xs.append(x)
 
@@ -128,13 +109,7 @@ class ParamSampler:
         Y = np.array(ys)
         return X, Y
 
-    def sample_parameters_gp_explore(self, description, history, key):
 
-        # One some change, just take random parameters
-        random.seed(time.time)
-        if random.randint(0, 100) > 90:
-            return self.sample_parameters_basic(description, 'random')
-        
-        return self.sample_parameters_gp(description, history, key)
+
 
         

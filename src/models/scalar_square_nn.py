@@ -15,12 +15,13 @@ from tensorflow import set_random_seed
 
 class ScalarSquareNN:
 
-    def __init__(self):
+    def __init__(self, pdist_types):
         print(keras.backend.tensorflow_backend._get_available_gpus())
         print(device_lib.list_local_devices())
 
-        self.parameters = {'num_hidden_dense': (1, 50, 2, 'int', 'lin'),
-                           'num_neurons': (1, 100, 3, 'int', 'lin')}
+        self.parameters = {'num_hidden_dense': pdist_types.Linear(low=1, high=50, default=2, ptype='int'),
+                           'num_neurons':      pdist_types.Linear(low=1, high=100, default=3, ptype='int'),
+                           }
 
         self.model = None
         
