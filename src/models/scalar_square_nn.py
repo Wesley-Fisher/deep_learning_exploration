@@ -15,8 +15,8 @@ class ScalarSquareNN:
         print(keras.backend.tensorflow_backend._get_available_gpus())
         print(device_lib.list_local_devices())
 
-        self.parameters = {'num_hidden_dense': (1, 20, 2),
-                           'num_neurons': (1, 30, 3)}
+        self.parameters = {'num_hidden_dense': (1, 50, 2, 'int', 'lin'),
+                           'num_neurons': (1, 100, 3, 'int', 'lin')}
 
         self.model = None
 
@@ -45,10 +45,10 @@ class ScalarSquareNN:
                            metrics=['mean_squared_error'])
         self.model.summary()
     
-    def train_model(self, Xtrain, Ytrain, Xtest, Ytest, epochs=100):
+    def train_model(self, Xtrain, Ytrain, Xtest, Ytest, epochs=100, verbose=1):
         hist = self.model.fit(x=Xtrain, y=Ytrain,
                               validation_data=(Xtest, Ytest),
-                              verbose=1, callbacks=None,  shuffle=True,
+                              verbose=verbose, callbacks=None,  shuffle=True,
                               batch_size=32, epochs=epochs)
         return hist
 

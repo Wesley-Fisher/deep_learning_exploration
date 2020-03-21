@@ -49,9 +49,9 @@ if ! docker container ps | grep -q ${CONTAINER_NAME}; then
 	$DOCKER_USER_ARGS \
 	$DOCKER_GPU_ARGS \
 	$DOCKER_SSH_AUTH_ARGS \
-	-v "$DIR:/home/${USER}" \
+	-v "$DIR:/workspace" \
 	$ADDITIONAL_FLAGS --user root \
-	--name ${CONTAINER_NAME} --workdir /home/$USER \
+	--name ${CONTAINER_NAME} --workdir /workspace \
 	--cap-add=SYS_PTRACE \
 	--cap-add=SYS_NICE \
 	--net host \
@@ -59,5 +59,5 @@ if ! docker container ps | grep -q ${CONTAINER_NAME}; then
 	$IMAGE_NAME  bash
 else
 	echo "Starting shell in running container"
-	docker exec -it --workdir /home/${USER} --env USER=${USER} --user $(whoami) ${CONTAINER_NAME} bash -l -c "stty cols $(tput cols); stty rows $(tput lines); bash"
+	docker exec -it --workdir /workspace --env USER=${USER} --user $(whoami) ${CONTAINER_NAME} bash -l -c "stty cols $(tput cols); stty rows $(tput lines); bash"
 fi
