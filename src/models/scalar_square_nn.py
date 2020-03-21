@@ -9,6 +9,10 @@ from tensorflow.python.client import device_lib
 import sklearn
 import sklearn.model_selection
 
+from numpy.random import seed
+from tensorflow import set_random_seed
+
+
 class ScalarSquareNN:
 
     def __init__(self):
@@ -19,11 +23,14 @@ class ScalarSquareNN:
                            'num_neurons': (1, 100, 3, 'int', 'lin')}
 
         self.model = None
+        
 
     def get_parameter_descriptions(self):
         return self.parameters
 
-    def prepare_model(self, params):
+    def prepare_model(self, params, rand_seed=0):
+        seed(rand_seed)
+        set_random_seed(rand_seed)
         self.model = Sequential()
 
         self.model.add(Dense(1, input_dim=1))

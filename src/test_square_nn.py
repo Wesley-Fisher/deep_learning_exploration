@@ -28,17 +28,17 @@ mph = ModelPerformanceHistory('square_nn',
 ps = ParamSampler()
 
 # Training iterations
-for i in range(0, 10):
+for i in range(0, 50):
 
     # Choose parameters
-    params = ps.sample_parameters(pd, 'random')
+    params = ps.sample_parameters_gp_explore(pd, mph, 'val_loss')
 
     model.prepare_model(params)
 
     # Train
     hist = model.train_model(X_train, Y_train,
                             X_test, Y_test,
-                            500,
+                            100,
                             verbose=1)
 
     results = {    'loss': hist.history['loss'][-1],
@@ -66,8 +66,13 @@ fig = plt.figure(3)
 ax = fig.add_subplot(111, projection='3d')
 x = mph.get_history('num_hidden_dense')
 y = mph.get_history('num_neurons')
-z =np.log10( mph.get_history('val_loss'))
+z = np.log10( mph.get_history('val_loss'))
 surf = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.1)
 fig.colorbar(surf, shrink=0.5, aspect=5)
+plt.title('log(val_loss) for parameters')
 
+fig = plt.figure(4)
+plt.plot(np.log10(mph.get_history('val_loss')))
+plt.xlabel('Iteration')
+plt.ylabel('Log10(Loss)')
 plt.show()
