@@ -2,6 +2,7 @@
 import numpy as np
 import heapq
 import copy
+import statistics
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -122,7 +123,7 @@ plt.title("Square NN - Val. Losses over Training - Best Model")
 plt.xlabel("Epochs")
 plt.ylabel("Val. Loss  (Mean Squared)")
 plt.legend()
-plt.savefig("/workspace/results/plots/square_nn_01_best_losses")
+plt.savefig("/workspace/results/major/square_nn/square_nn_01_best_losses")
 
 
 
@@ -134,7 +135,7 @@ plt.title("Square NN - Best Network Predictions")
 plt.xlabel("Input")
 plt.ylabel("Output")
 plt.legend()
-plt.savefig("/workspace/results/plots/square_nn_02_best_predictions")
+plt.savefig("/workspace/results/major/square_nn/square_nn_02_best_predictions")
 
 
 fig = plt.figure(3)
@@ -144,7 +145,7 @@ plt.xlabel('Iteration (New Model and Params)')
 plt.ylabel('Log10(Loss)  (Mean Squared)')
 plt.title('Square NN - Val. Losses for Models Trained')
 plt.legend()
-plt.savefig("/workspace/results/plots/square_nn_03_all_losses")
+plt.savefig("/workspace/results/major/square_nn/square_nn_03_all_losses")
 
 
 def min_so_far(data):
@@ -160,7 +161,7 @@ plt.xlabel('Iteration (New Model and Params)')
 plt.ylabel('Log10(Loss)  (Mean Squared)')
 plt.title('Square NN - Min-So-Far Val. Losses for Models Trained')
 plt.legend()
-plt.savefig("/workspace/results/plots/square_nn_04_min_so_far_losses")
+plt.savefig("/workspace/results/major/square_nn/square_nn_04_min_so_far_losses")
 
 
 fig = plt.figure(5)
@@ -174,23 +175,32 @@ plt.title('Log10(val_loss) in Parameter-Space - GPR Trained')
 ax.set_xlabel('Num. Hidden Dense Layers')
 ax.set_ylabel('Num. Neurons Per Layer')
 ax.set_zlabel('Log10(Final Val. Loss)  (Mean Squared)')
-plt.savefig("/workspace/results/plots/square_nn_05_losses_param_space")
+plt.savefig("/workspace/results/major/square_nn/square_nn_05_losses_param_space")
 
 
-rands = mph_rand.get_history_of('val_loss')
-gprs = mph_gpr.get_history_of('val_loss')
 
-t, p = scipy.stats.ttest_ind(rands, gprs, equal_var=False)
-print("Full Data Comparison:")
-print("  t value: %f" % t)
-print("  p value: %f" % p)
+with open("/workspace/results/major/square_nn/square_nn_06_statistics.txt", 'w') as f:
+    rands = mph_rand.get_history_of('val_loss')
+    gprs = mph_gpr.get_history_of('val_loss')
 
-rands = heapq.nsmallest(N_smallest, rands)
-gprs = heapq.nsmallest(N_smallest, gprs)
+    t, p = scipy.stats.ttest_ind(rands, gprs, equal_var=False)
+    f.write("Full (%d) Val-Loss Comparison:\n" % len(rands))
+    f.write("  rand mean: %f\n" % statistics.mean(rands))
+    f.write("  gpr mean: %f\n" % statistics.mean(gprs))
+    f.write("  rand stdev: %f\n" % statistics.stdev(rands))
+    f.write("  gpr stdev: %f\n" % statistics.stdev(gprs))
+    f.write("  t value: %f\n" % t)
+    f.write("  p value: %f\n" % p)
 
-t, p = scipy.stats.ttest_ind(rands, gprs, equal_var=False)
-print("Best Data Comparison:")
-print("  t value: %f" % t)
-print("  p value: %f" % p)
+    rands = heapq.nsmallest(N_smallest, rands)
+    gprs = heapq.nsmallest(N_smallest, gprs)
 
-#plt.show()
+    t, p = scipy.stats.ttest_ind(rands, gprs, equal_var=False)
+    f.write("Best %d Val-Loss Comparison:\n" % N_smallest)
+    f.write("  rand mean: %f\n" % statistics.mean(rands))
+    f.write("  gpr mean: %f\n" % statistics.mean(gprs))
+    f.write("  rand stdev: %f\n" % statistics.stdev(rands))
+    f.write("  gpr stdev: %f\n" % statistics.stdev(gprs))
+    f.write("  t value: %f\n" % t)
+    f.write("  p value: %f\n" % p)
+
