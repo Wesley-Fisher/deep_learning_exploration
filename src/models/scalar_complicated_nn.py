@@ -24,6 +24,7 @@ class ScalarComplicatedNN:
                            'dropout_frac':     pdist_types.Linear(low=0.05, high=0.75, default=0.1, ptype='float'),
                            'batch_size':       pdist_types.Pow2(low=2, high=128, default=16, ptype='int'),
                            'learning_rate':    pdist_types.Log10(low=0.0001, high=0.1, default=0.001, ptype='float'),
+                           'epochs': pdist_types.Linear(low=10, high=500, default=100, ptype='int')
                            }
 
         self.model = None

@@ -24,8 +24,8 @@ Compare vs random to judge effectiveness
 Plot performance, and use t-tests
 '''
 
-Num_Iterations = 5
-N_smallest = 2
+Num_Iterations = 50
+N_smallest = 10
 
 
 #
@@ -109,30 +109,37 @@ gpr_losses, gpr_val_losses, yout_gpr = hyper_training(model,
 #
 # Visualize and show results
 #
-plt.figure(1)
+fig = plt.figure(1)
 plt.plot(rand_losses, label="Rand Train")
 plt.plot(rand_val_losses, label="Rand Test")
 plt.plot(gpr_losses, label="GPR Train")
 plt.plot(gpr_val_losses, label="GPR Test")
-plt.title("Training and Validation Accuracy - Best Model")
+plt.title("Square NN - Val. Losses over Training - Best Model")
+plt.xlabel("Epochs")
+plt.ylabel("Val. Loss  (Mean Squared)")
 plt.legend()
+plt.savefig("/workspace/results/plots/square_nn_01_best_losses")
 
 
-plt.figure(2)
+fig = plt.figure(2)
 plt.plot(X_predictable, Y_truth, label="Truth")
 plt.plot(X_predictable, yout_rand, label="Random")
 plt.plot(X_predictable, yout_gpr, label="GPR")
-plt.title("Predicted Data from Best Networks")
+plt.title("Square NN - Best Network Predictions")
+plt.xlabel("Input")
+plt.ylabel("Output")
 plt.legend()
+plt.savefig("/workspace/results/plots/square_nn_02_best_predictions")
 
 
 fig = plt.figure(3)
 plt.plot(np.log10(mph_gpr.get_history('val_loss')), label='GPR')
 plt.plot(np.log10(mph_rand.get_history('val_loss')), label='Rand')
-plt.xlabel('Iteration')
-plt.ylabel('Log10(Loss)')
-plt.title('Final Validation Losses over Hyper-Iterations')
+plt.xlabel('Iteration (New Model and Params)')
+plt.ylabel('Log10(Loss)  (Mean Squared)')
+plt.title('Square NN - Val. Losses for Models Trained')
 plt.legend()
+plt.savefig("/workspace/results/plots/square_nn_03_all_losses")
 
 
 fig = plt.figure(4)
@@ -144,6 +151,10 @@ z = np.log10( mph_gpr.get_history('val_loss'))
 surf = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.1)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 plt.title('Log10(val_loss) in Parameter-Space - GPR Trained')
+ax.set_xlabel('Num. Hidden Dense Layers')
+ax.set_ylabel('Num. Neurons Per Layer')
+ax.set_zlabel('Log10(Final Val. Loss)  (Mean Squared)')
+plt.savefig("/workspace/results/plots/square_nn_04_losses_param_space")
 
 
 rands = mph_rand.get_history('val_loss')
@@ -162,4 +173,4 @@ print("Best Data Comparison:")
 print("  t value: %f" % t)
 print("  p value: %f" % p)
 
-plt.show()
+#plt.show()

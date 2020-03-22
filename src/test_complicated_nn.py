@@ -24,8 +24,8 @@ Compare vs random to judge effectiveness
 Plot performance, and use t-tests
 '''
 
-Num_Iterations = 5
-N_smallest = 2
+Num_Iterations = 25
+N_smallest = 5
 
 
 #
@@ -46,10 +46,10 @@ Y_truth = np.sin(X_predictable)
 dists = DistrbutionTypes()
 model = ScalarComplicatedNN(dists)
 pd = model.get_parameter_descriptions()
-mph_rand = ModelPerformanceHistory('square_nn_rand',
+mph_rand = ModelPerformanceHistory('complicated_nn_rand',
                                    list(pd.keys()),
                                    ['loss', 'val_loss'])
-mph_gpr = ModelPerformanceHistory('square_nn_gpr',
+mph_gpr = ModelPerformanceHistory('complicated_nn_gpr',
                                   list(pd.keys()),
                                   ['loss', 'val_loss'])
 ps_rand = ParamSampler(pd, mph_rand)
@@ -68,14 +68,18 @@ def hyper_training(model, ps, mph, ps_chooser):
     best_val_losses = None
     predicted = None
     for i in range(0, Num_Iterations):
+        for j in range(0, 5):
+            print("")
+
         params = ps_chooser(ps)
         print(params)
+
         model.prepare_model(params)
 
         hist = model.train_model(X_train, Y_train,
                                 X_test, Y_test,
-                                100,
-                                verbose=1)
+                                params['epochs'],
+                                verbose=2)
         
         results = {    'loss': hist.history['loss'][-1],
                    'val_loss': hist.history['val_loss'][-1]}
@@ -85,7 +89,7 @@ def hyper_training(model, ps, mph, ps_chooser):
 
         loss = hist.history['val_loss'][-1]
         if i == 0 or loss < best_val_loss:
-            best_val_loss = hist.history['val_loss'][-1]
+            best_val_loss = loss
             best_losses = hist.history['loss']
             best_val_losses = hist.history['val_loss']
             predicted = model.predict(X_predictable)

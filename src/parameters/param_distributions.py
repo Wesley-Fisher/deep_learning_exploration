@@ -64,12 +64,13 @@ class Log10Distribution(BaseDistribution):
         return math.pow(10, a)
 
 class Pow2Distributon(BaseDistribution):
+    nudge = 1e-7 # Deal with numbers just less than ints (ex: 1.999)
     def transform_to_distribution(self, a):
         a = a / self.low
-        return math.log2(a)
+        return math.log2(a + self.nudge)
     def transform_from_distribution(self, a):
         a = math.pow(2, a)
-        return a * self.low
+        return a * self.low + self.nudge
         
 
 class DistrbutionTypes:

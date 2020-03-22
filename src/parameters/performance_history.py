@@ -20,7 +20,7 @@ class ModelPerformanceHistory:
         
 
     def get_filename(self):
-        filename = '/workspace/history/' + self.label + ".csv"
+        filename = '/workspace/results/history/' + self.label + ".csv"
         return filename
 
     def load_history(self):

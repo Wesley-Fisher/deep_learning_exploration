@@ -51,7 +51,7 @@ class ParamSampler:
 
         # Set some defaults
         EI_max = 0
-        xd_max = self.sample_parameters_default()
+        xd_max = None
 
         for i in range(0, 100*len(in_param_ordering)):
             x = [] # Values to sample
@@ -65,7 +65,7 @@ class ParamSampler:
 
             EI = self.calculate_EI(gpr, x, fxp)
 
-            if EI > EI_max:
+            if i == 0 or EI > EI_max:
                 EI_max = EI
                 xd_max = xd
 
