@@ -63,6 +63,16 @@ class Log10Distribution(BaseDistribution):
     def transform_from_distribution(sef, a):
         return math.pow(10, a)
 
+class Pow2Distributon(BaseDistribution):
+    def transform_to_distribution(self, a):
+        a = a / self.low
+        return math.log2(a)
+    def transform_from_distribution(self, a):
+        a = math.pow(2, a)
+        return a * self.low
+        
+
 class DistrbutionTypes:
     Linear = LinearDistribution
     Log10 = Log10Distribution
+    Pow2 = Pow2Distributon

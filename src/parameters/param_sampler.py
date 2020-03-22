@@ -7,37 +7,39 @@ from scipy.stats import norm
 from sklearn.gaussian_process import GaussianProcessRegressor
 
 class ParamSampler:
-    def __init__(self):
-        pass
+    def __init__(self, param_desc, history):
+        self.param_desc = param_desc
+        self.history = history
     
-    def sample_parameters_default(self, param_desc):
+    def sample_parameters_default(self):
         params = {}
-        for p in param_desc.keys():
-            x, xn = param_desc[p].sample_default()
-            params[p] = x
-        return params
-    def sample_parameters_random(self, param_desc):
-        params = {}
-        for p in param_desc.keys():
-            x, xn = param_desc[p].sample_random()
+        for p in self.param_desc.keys():
+            x, xn = self.param_desc[p].sample_default()
             params[p] = x
         return params
 
-    def sample_parameters_gp_explore(self, description, history, key):
+    def sample_parameters_random(self):
+        params = {}
+        for p in self.param_desc.keys():
+            x, xn = self.param_desc[p].sample_random()
+            params[p] = x
+        return params
+
+    def sample_parameters_gp_explore(self, key):
 
         # One some chance, just take random parameters
         random.seed(time.time)
         if random.randint(0, 100) > 90:
-            return self.sample_parameters_basic(description, 'random')
+            return self.sample_parameters_random()
         
-        return self.sample_parameters_gp(description, history, key)
+        return self.sample_parameters_gp(key)
     
-    def sample_parameters_gp(self, param_desc, history, key):
-        if len(history.history) == 0:
-            return self.sample_parameters_default(param_desc)
+    def sample_parameters_gp(self, key):
+        if len(self.history.history) == 0:
+            return self.sample_parameters_default()
         
-        in_param_ordering = history.in_params
-        X, Y = self.create_gp_data(history, in_param_ordering, param_desc, key)
+        in_param_ordering = self.history.in_params
+        X, Y = self.create_gp_data( in_param_ordering, key)
         
         # Based on maximization
         Y = -np.log(Y)
@@ -49,14 +51,14 @@ class ParamSampler:
 
         # Set some defaults
         EI_max = 0
-        xd_max = self.sample_parameters_default(param_desc)
+        xd_max = self.sample_parameters_default()
 
         for i in range(0, 100*len(in_param_ordering)):
             x = [] # Values to sample
             xd = {} # Dict of params to output
             
             for p in in_param_ordering:
-                xa, xn = param_desc[p].sample_random()
+                xa, xn = self.param_desc[p].sample_random()
                 x.append(xn)
                 xd[p] = xa
             x = np.array(x)
@@ -86,16 +88,16 @@ class ParamSampler:
         return EI
 
 
-    def create_gp_data(self, history, param_keys_ordered, param_desc, key):
+    def create_gp_data(self, param_keys_ordered, key):
         
         xs = []
         ys = []
 
-        for h in history.history:
+        for h in self.history.history:
             x = []
             for p in param_keys_ordered:
                 xi = h[p]
-                xn = param_desc[p].normalize(xi)
+                xn = self.param_desc[p].normalize(xi)
 
                 x.append(xn)
             
@@ -108,6 +110,19 @@ class ParamSampler:
         X = np.stack(xs, axis=0)
         Y = np.array(ys)
         return X, Y
+    
+    def sample_parameters_lowest(self, key):
+        h_best = self.history.history[0]
+        score_min = h_best[key]
+
+        for hist in history.history:
+            score = hist[key]
+
+            if score <= score_min:
+                score_min = score
+                h_best = hist
+        
+        return h_best
 
 
 

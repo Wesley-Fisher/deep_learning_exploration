@@ -13,7 +13,7 @@ import sklearn.model_selection
 
 import scipy.stats
 
-from models.scalar_square_nn import ScalarSquareNN
+from models.scalar_complicated_nn import ScalarComplicatedNN
 from parameters.performance_history import ModelPerformanceHistory
 from parameters.param_sampler import ParamSampler
 from parameters.param_distributions import DistrbutionTypes
@@ -44,7 +44,7 @@ Y_truth = np.sin(X_predictable)
 # Create Model
 #
 dists = DistrbutionTypes()
-model = ScalarSquareNN(dists)
+model = ScalarComplicatedNN(dists)
 pd = model.get_parameter_descriptions()
 mph_rand = ModelPerformanceHistory('square_nn_rand',
                                    list(pd.keys()),
@@ -134,16 +134,6 @@ plt.ylabel('Log10(Loss)')
 plt.title('Final Validation Losses over Hyper-Iterations')
 plt.legend()
 
-
-fig = plt.figure(4)
-ax = fig.add_subplot(111, projection='3d')
-x = mph_gpr.get_history('num_hidden_dense')
-print(x)
-y = mph_gpr.get_history('num_neurons')
-z = np.log10( mph_gpr.get_history('val_loss'))
-surf = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.1)
-fig.colorbar(surf, shrink=0.5, aspect=5)
-plt.title('Log10(val_loss) in Parameter-Space - GPR Trained')
 
 
 rands = mph_rand.get_history('val_loss')
