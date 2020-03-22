@@ -13,7 +13,7 @@ from numpy.random import seed
 from tensorflow import set_random_seed
 
 
-class ScalarComplicatedNN:
+class ScalarHighDNN:
 
     def __init__(self, pdist_types):
         print(keras.backend.tensorflow_backend._get_available_gpus())
