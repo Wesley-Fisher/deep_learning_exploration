@@ -6,6 +6,10 @@ then
   exit 1
 fi
 
-rm /workspace/results/training_hist/$1*.pk
-rm /workspace/results/models/$1*.h5
 rm /workspace/results/history/$1*.csv
+
+rm /workspace/results/trained_models/$1*.h5
+rm /workspace/results/trained_models/$1*.csv
+
+rm /workspace/results/major/$1/$1*.png
+rm /workspace/results/major/$1/$1*.txt

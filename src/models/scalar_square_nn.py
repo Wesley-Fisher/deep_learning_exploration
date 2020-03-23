@@ -74,7 +74,7 @@ class ScalarSquareNN:
             pickle.dump(self.history, f)
 
     def load(self, filename):
-        self.model = keras.models.load_model(+ filename + '.h5')
+        self.model = keras.models.load_model(filename + '.h5')
 
         with open(filename + '.pk', 'rb') as f:
             self.history = pickle.load(f)
