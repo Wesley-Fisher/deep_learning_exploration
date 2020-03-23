@@ -116,7 +116,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     #
     # Visualize and show results
     #
-    file_prefix = DIR.MAJOR + "/" + model.get_prefix() + "/" + model.get_prefix() + "_"
+    file_prefix = DIR.MAJOR + "/" + model.get_prefix() + "/" + model.get_prefix() + "__"
 
     fig = plt.figure(1)
     plt.plot(best_rand_train_hist['loss'], label="Rand Train")
