@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 
 import keras
 from keras.layers import Input, Dense, Activation, Dropout
@@ -28,8 +29,11 @@ class ScalarHighDNN:
                            }
 
         self.model = None
+        self.history = None
         self.current_params = None
-        
+
+    def get_prefix(self):
+        return "highd_nn"         
 
     def get_parameter_descriptions(self):
         return self.parameters
@@ -64,8 +68,22 @@ class ScalarHighDNN:
         hist = self.model.fit(x=Xtrain, y=Ytrain,
                               validation_data=(Xtest, Ytest),
                               verbose=verbose, callbacks=None,  shuffle=True,
-                              batch_size=self.current_params['batch_size'], epochs=epochs)
+                              batch_size=self.current_params['batch_size'], epochs=self.current_params['epochs'])
+        self.history = hist.history
         return hist
 
     def predict(self, Y):
         return self.model.predict(Y)
+
+    
+    def save(self, filename):
+        self.model.save(filename +'.h5')
+        with open(filename + '.pk', 'wb') as f:
+            pickle.dump(self.history, f)
+    
+    def load(self, filename):
+        self.model = keras.models.load_model(filename + '.h5')
+
+        with open(filename + '.pk', 'rb') as f:
+            self.history = pickle.load(f)
+        return self.history

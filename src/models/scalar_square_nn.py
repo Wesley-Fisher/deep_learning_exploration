@@ -25,8 +25,9 @@ class ScalarSquareNN:
                            }
 
         self.model = None
+        self.history = None
 
-    def get_prefix():
+    def get_prefix(self):
         return "square_nn"        
 
     def get_parameter_descriptions(self):
@@ -61,21 +62,20 @@ class ScalarSquareNN:
                               validation_data=(Xtest, Ytest),
                               verbose=verbose, callbacks=None,  shuffle=True,
                               batch_size=32, epochs=epochs)
+        self.history = hist.history
         return hist
 
     def predict(self, Y):
         return self.model.predict(Y)
     
-    def save(self, filename, hist):
-        self.model.save('/workspace/results/models/' + filename +'.h5')
-        with open('/workspace/results/training_hist/' + filename + '.pk', 'wb') as f:
-            pickle.dump(hist, f)
-
-
+    def save(self, filename):
+        self.model.save(filename +'.h5')
+        with open(filename + '.pk', 'wb') as f:
+            pickle.dump(self.history, f)
 
     def load(self, filename):
-        self.model = keras.models.load_model('/workspace/results/models/' + filename + '.h5')
+        self.model = keras.models.load_model(+ filename + '.h5')
 
-        with open('/workspace/results/training_hist/' + filename + '.pk', 'rb') as f:
-            hist = pickle.load(f)
-        return hist
+        with open(filename + '.pk', 'rb') as f:
+            self.history = pickle.load(f)
+        return self.history
