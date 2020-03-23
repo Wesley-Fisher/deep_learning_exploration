@@ -104,8 +104,8 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     yout_rand = model.predict(X_predictable)
 
 
-    best_gpr_train_hist = model.load(DIR.TRAINED + model.get_prefix() + '_' + best_rand_uuid)
-    model.save(DIR.MAJOR + model.get_prefix() + '/' + model.get_prefix() + '_' + best_rand_uuid)
+    best_gpr_train_hist = model.load(DIR.TRAINED + model.get_prefix() + '_' + best_gpr_uuid)
+    model.save(DIR.MAJOR + model.get_prefix() + '/' + model.get_prefix() + '_' + best_gpr_uuid)
     yout_gpr = model.predict(X_predictable)
 
     gpr_loss_history = mph_gpr.get_history_of('val_loss')
@@ -128,6 +128,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     plt.ylabel("Val. Loss  (Mean Squared)")
     plt.legend()
     plt.savefig(file_prefix + "01_best_losses")
+    plt.close()
 
 
 
@@ -140,6 +141,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     plt.ylabel("Output")
     plt.legend()
     plt.savefig(file_prefix + "02_best_predictions")
+    plt.close()
 
 
     fig = plt.figure(3)
@@ -150,6 +152,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     plt.title('Square NN - Val. Losses for Models Trained')
     plt.legend()
     plt.savefig(file_prefix + "03_all_losses")
+    plt.close()
 
 
     def min_so_far(data):
@@ -166,6 +169,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     plt.title('Square NN - Min-So-Far Val. Losses for Models Trained')
     plt.legend()
     plt.savefig(file_prefix + "04_min_so_far_losses")
+    plt.close()
 
 
     fig = plt.figure(5)
@@ -180,6 +184,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     ax.set_ylabel('Num. Neurons Per Layer')
     ax.set_zlabel('Log10(Final Val. Loss)  (Mean Squared)')
     plt.savefig(file_prefix + "05_losses_param_space")
+    plt.close()
 
 
 
@@ -210,8 +215,8 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
         f.write("  p value: %f\n" % p)
 
 if __name__ == "__main__":
-    Num_Iterations = 3
-    N_smallest = 1
+    Num_Iterations = 50
+    N_smallest = 10
 
     run_nn_tests(ScalarSquareNN, Num_Iterations, N_smallest)
     run_nn_tests(ScalarHighDNN, Num_Iterations, N_smallest)
