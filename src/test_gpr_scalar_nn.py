@@ -26,8 +26,9 @@ Used to do initial testing and validation of the GPR exploration process
 Compare vs random to judge effectiveness
 Plot performance, and use t-tests
 
-a) simple 2-parameter network to visualize
-b) higher-d network
+Models Used:
+a) simple 2-parameter network to visualize and debug results
+b) higher-d network, where random choice is expected to perform worse
 '''
 
 
@@ -73,26 +74,37 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
         if len(mph.history) > 0:
             best_val = mph.get_best('val_loss', dir=-1)
 
-        for i in range(0, Num_Iterations):
+        while len(mph.history) < Num_Iterations:
             params = ps_chooser(ps)
             print(params)
             model.prepare_model(params)
 
+            # curr: saved per model while being trained
+            # best: best of the best of all models
+            curr_best_filename = DIR.RESULTS + "/temp/curr_best"
+            best_filename = MODEL_FILENAME_PREFIX + '_' + suffix + "_best"
+
             hist = model.train_model(X_train, Y_train,
                                     X_test, Y_test,
                                     100,
-                                    verbose=2)
+                                    verbose=2,
+                                    filename=curr_best_filename)
             
-            results = {    'loss': hist.history['loss'][-1],
-                    'val_loss': hist.history['val_loss'][-1]}
+            min_val_loss = min(hist.history['val_loss'])
+            min_val_loss_i = np.argmin(hist.history['val_loss'])
+
+            results = {'loss': hist.history['loss'][min_val_loss_i],
+                       'val_loss': min_val_loss}
             
             uuid = mph.add_sample(params, results)
             mph.save_history()
 
-            val = results['val_loss']
-            if best_val is None or val < best_val:
-                best_val = val
-                model.save(MODEL_FILENAME_PREFIX + '_' + suffix + "_best")
+            if best_val is None or min_val_loss < best_val:
+                best_val = min_val_loss
+
+                # Saved best-trained model at its best epoch
+                model.load(curr_best_filename)
+                model.save(best_filename)
         
         return
 

@@ -4,6 +4,8 @@ import pickle
 import keras
 from keras.layers import Input, Dense, Activation, Dropout
 from keras.models import Sequential
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+
 
 from tensorflow.python.client import device_lib
 
@@ -63,12 +65,19 @@ class ScalarHighDNN:
                            optimizer=optimizer,
                            metrics=['mean_squared_error'])
         self.model.summary()
+
+
     
-    def train_model(self, Xtrain, Ytrain, Xtest, Ytest, epochs=100, verbose=1):
+    def train_model(self, Xtrain, Ytrain, Xtest, Ytest, epochs=100, verbose=1, filename=None):
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=50)
+        mc = ModelCheckpoint(filename + '.h5', monitor='val_loss', mode='min', verbose=0, save_best_only=True)
+
         hist = self.model.fit(x=Xtrain, y=Ytrain,
                               validation_data=(Xtest, Ytest),
-                              verbose=verbose, callbacks=None,  shuffle=True,
-                              batch_size=self.current_params['batch_size'], epochs=self.current_params['epochs'])
+                              verbose=verbose,                              shuffle=True,
+                              batch_size=self.current_params['batch_size'],
+                              epochs=self.current_params['epochs'],
+                              callbacks=[es, mc])
         self.history = hist.history
         return hist
 
