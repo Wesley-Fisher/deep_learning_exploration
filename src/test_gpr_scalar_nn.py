@@ -48,11 +48,14 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     #
     dists = DistrbutionTypes()
     model = modeltype(dists)
+
+    MODEL_FILENAME_PREFIX = DIR.RESULTS + model.get_prefix() + "/" + model.get_prefix()
+
     pd = model.get_parameter_descriptions()
-    mph_rand = ModelPerformanceHistory(model.get_prefix() + '_rand',
+    mph_rand = ModelPerformanceHistory(MODEL_FILENAME_PREFIX + '_rand',
                                     list(pd.keys()),
                                     ['loss', 'val_loss'])
-    mph_gpr = ModelPerformanceHistory(model.get_prefix() + '_gpr',
+    mph_gpr = ModelPerformanceHistory(MODEL_FILENAME_PREFIX + '_gpr',
                                     list(pd.keys()),
                                     ['loss', 'val_loss'])
     ps_rand = ParamSampler(pd, mph_rand)
@@ -65,7 +68,10 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     #
 
     # General Training
-    def hyper_training(model, ps, mph, ps_chooser):
+    def hyper_training(model, suffix, ps, mph, ps_chooser):
+        best_val = None
+        if len(mph.history) > 0:
+            best_val = mph.get_best('val_loss', dir=-1)
 
         for i in range(0, Num_Iterations):
             params = ps_chooser(ps)
@@ -82,15 +88,19 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
             
             uuid = mph.add_sample(params, results)
             mph.save_history()
-            model.save(DIR.TRAINED + model.get_prefix() + '_' + str(uuid))
+
+            val = results['val_loss']
+            if best_val is None or val < best_val:
+                best_val = val
+                model.save(MODEL_FILENAME_PREFIX + '_' + suffix + "_best")
         
         return
 
 
     # Actual Training
-    hyper_training(model, ps_rand, mph_rand, lambda ps: ps.sample_parameters_random())
+    hyper_training(model, 'rand', ps_rand, mph_rand, lambda ps: ps.sample_parameters_random())
 
-    hyper_training(model, ps_gpr, mph_gpr, lambda ps: ps.sample_parameters_gp_explore('val_loss'))
+    hyper_training(model, 'gpr', ps_gpr, mph_gpr, lambda ps: ps.sample_parameters_gp_explore('val_loss'))
 
 
     #
@@ -99,13 +109,11 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     best_rand_uuid = mph_rand.get_best('val_loss', dir=-1)['uuid']
     best_gpr_uuid = mph_gpr.get_best('val_loss', dir=-1)['uuid']
 
-    best_rand_train_hist = model.load(DIR.TRAINED + model.get_prefix() + '_' + best_rand_uuid)
-    model.save(DIR.MAJOR + model.get_prefix() + '/' + model.get_prefix() + '_' + best_rand_uuid)
+    best_rand_train_hist = model.load(MODEL_FILENAME_PREFIX + '_rand_best')
     yout_rand = model.predict(X_predictable)
 
 
-    best_gpr_train_hist = model.load(DIR.TRAINED + model.get_prefix() + '_' + best_gpr_uuid)
-    model.save(DIR.MAJOR + model.get_prefix() + '/' + model.get_prefix() + '_' + best_gpr_uuid)
+    best_gpr_train_hist = model.load(MODEL_FILENAME_PREFIX + '_gpr_best')
     yout_gpr = model.predict(X_predictable)
 
     gpr_loss_history = mph_gpr.get_history_of('val_loss')
@@ -116,7 +124,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     #
     # Visualize and show results
     #
-    file_prefix = DIR.MAJOR + "/" + model.get_prefix() + "/" + model.get_prefix() + "__"
+    file_prefix = MODEL_FILENAME_PREFIX + "__"
 
     fig = plt.figure(1)
     plt.plot(best_rand_train_hist['loss'], label="Rand Train")

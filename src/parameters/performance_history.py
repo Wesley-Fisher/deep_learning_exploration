@@ -4,25 +4,19 @@ import uuid
 
 class ModelPerformanceHistory:
 
-    def __init__(self, label, in_params, out_results):
-        self.label = label
+    def __init__(self, filename, in_params, out_results):
+        self.filename = filename + ".csv"
         self.in_params = in_params
         self.in_params.sort()
         self.out_results = out_results
         self.out_results.sort()
         self.all_parameters = list(self.in_params) + self.out_results + ['uuid']
-        self.filename = self.get_filename()
 
         self.history = []
         try:
             self.history = self.load_history()
         except FileNotFoundError as e:
             print(e)
-        
-
-    def get_filename(self):
-        filename = '/workspace/results/history/' + self.label + ".csv"
-        return filename
 
     def load_history(self):
         filename = self.filename
