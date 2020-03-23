@@ -81,7 +81,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
 
             # curr: saved per model while being trained
             # best: best of the best of all models
-            curr_best_filename = DIR.RESULTS + "/temp/curr_best"
+            curr_best_filename = DIR.RESULTS + "temp/curr_best"
             best_filename = MODEL_FILENAME_PREFIX + '_' + suffix + "_best"
 
             hist = model.train_model(X_train, Y_train,
@@ -103,7 +103,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
                 best_val = min_val_loss
 
                 # Saved best-trained model at its best epoch
-                model.load(curr_best_filename)
+                model.load(curr_best_filename, load_hist=False)
                 model.save(best_filename)
         
         return

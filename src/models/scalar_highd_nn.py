@@ -90,9 +90,12 @@ class ScalarHighDNN:
         with open(filename + '.pk', 'wb') as f:
             pickle.dump(self.history, f)
     
-    def load(self, filename):
+    def load(self, filename, load_hist=True):
         self.model = keras.models.load_model(filename + '.h5')
 
-        with open(filename + '.pk', 'rb') as f:
-            self.history = pickle.load(f)
-        return self.history
+        if load_hist:
+            with open(filename + '.pk', 'rb') as f:
+                self.history = pickle.load(f)
+            return self.history
+        else:
+            return None

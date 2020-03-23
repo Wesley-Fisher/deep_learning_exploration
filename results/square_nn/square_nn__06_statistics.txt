@@ -1,0 +1,14 @@
+Square NNFull (50) Val-Loss Comparison:
+  rand mean: 0.200762
+  gpr mean: 0.101870
+  rand stdev: 0.248311
+  gpr stdev: 0.203867
+  t value: 2.176531
+  p value: 0.032010
+Best 10 Val-Loss Comparison:
+  rand mean: 0.000003
+  gpr mean: 0.000005
+  rand stdev: 0.000001
+  gpr stdev: 0.000002
+  t value: -3.416212
+  p value: 0.003541
