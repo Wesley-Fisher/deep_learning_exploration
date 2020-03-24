@@ -6,14 +6,13 @@ from keras.layers import Input, Dense, Activation, Dropout
 from keras.models import Sequential
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
-
 from tensorflow.python.client import device_lib
+import tensorflow as tf
 
 import sklearn
 import sklearn.model_selection
 
 from numpy.random import seed
-from tensorflow import set_random_seed
 
 
 class ScalarHighDNN:
@@ -43,7 +42,7 @@ class ScalarHighDNN:
     def prepare_model(self, params, rand_seed=0):
         self.current_params = params
         seed(rand_seed)
-        set_random_seed(rand_seed)
+        tf.set_random_seed(rand_seed)
         self.model = Sequential()
 
         self.model.add(Dense(1, input_dim=1))
