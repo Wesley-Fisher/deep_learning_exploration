@@ -29,12 +29,15 @@ class BaseDistribution:
     def sample_random(self):
         l = self.transform_to_distribution(self.low)
         h = self.transform_to_distribution(self.high)
-        x = random.uniform(l, h)
+        x = self.sampler(l, h)
         x = self.transform_from_distribution(x)
         x = self.to_type(x)
 
         xn = self.normalize(x)
         return x, xn
+
+    def sampler(self, l, h):
+        return random.uniform(l,h)
 
     def normalize(self, x):
         l = self.transform_to_distribution(self.low)
@@ -60,7 +63,7 @@ class LinearDistribution(BaseDistribution):
 class Log10Distribution(BaseDistribution):
     def transform_to_distribution(self, a):
         return math.log10(a)
-    def transform_from_distribution(sef, a):
+    def transform_from_distribution(self, a):
         return math.pow(10, a)
 
 class Pow2Distributon(BaseDistribution):
@@ -71,6 +74,9 @@ class Pow2Distributon(BaseDistribution):
     def transform_from_distribution(self, a):
         a = int(math.pow(2, a) + self.nudge)
         return a * self.low
+    def sampler(self, l, h):
+        return random.randint(int(l), int(h))
+
         
 
 class DistrbutionTypes:
