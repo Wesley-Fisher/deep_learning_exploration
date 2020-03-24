@@ -54,12 +54,13 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     MODEL_FILENAME_PREFIX = DIR.RESULTS + model.get_prefix() + "/" + model.get_prefix()
 
     pd = model.get_parameter_descriptions()
+    metrics = model.get_metrics()
     mph_rand = ModelPerformanceHistory(MODEL_FILENAME_PREFIX + '_rand',
                                     list(pd.keys()),
-                                    ['loss', 'val_loss'])
+                                    model.get_metrics())
     mph_gpr = ModelPerformanceHistory(MODEL_FILENAME_PREFIX + '_gpr',
                                     list(pd.keys()),
-                                    ['loss', 'val_loss'])
+                                    model.get_metrics())
     ps_rand = ParamSampler(pd, mph_rand)
     ps_gpr = ParamSampler(pd, mph_gpr)
 
