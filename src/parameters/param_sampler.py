@@ -11,6 +11,9 @@ class ParamSampler:
         self.param_desc = param_desc
         self.history = history
     
+    def seed(self, s):
+        random.seed(int(s))
+
     def sample_parameters_default(self):
         params = {}
         for p in self.param_desc.keys():

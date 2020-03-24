@@ -4,6 +4,7 @@ import math
 import heapq
 import copy
 import statistics
+import time
 
 import matplotlib
 matplotlib.use('Agg')
@@ -77,6 +78,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
             best_val = mph.get_best('val_loss', dir=-1)['val_loss']
 
         while len(mph.history) < Num_Iterations:
+            ps.seed(time.time())
             params = ps_chooser(ps)
             print(params)
             model.prepare_model(params)
@@ -91,10 +93,13 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
                                     100,
                                     verbose=2,
                                     filename=curr_best_filename)
-            
-            min_val_loss = min(hist.history['val_loss'])
-            min_val_loss_i = np.argmin(hist.history['val_loss'])
-
+            #print(hist.history)
+            try:
+                min_val_loss = min(hist.history['val_loss'])
+                min_val_loss_i = np.argmin(hist.history['val_loss'])
+            except KeyError as e:
+                print(e)
+                continue
             results = {'loss': hist.history['loss'][min_val_loss_i],
                        'val_loss': min_val_loss}
 

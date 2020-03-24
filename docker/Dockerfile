@@ -10,10 +10,12 @@ RUN apt update && \
     apt install -y \
       python3-pip \
       python3-tk \
+      vim \
       mesa-utils \
     && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install -r /workspace/requirements.txt
+RUN pip3 install --upgrade pip && \
+    pip3 install -r /workspace/requirements.txt
 
 
