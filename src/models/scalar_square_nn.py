@@ -4,7 +4,7 @@ import pickle
 import keras
 from keras.layers import Input, Dense, Activation
 from keras.models import Sequential
-from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.callbacks import EarlyStopping, ModelCheckpoint, TerminateOnNaN
 
 from tensorflow.python.client import device_lib
 import tensorflow as tf
@@ -29,11 +29,19 @@ class ScalarSquareNN:
         self.model = None
         self.history = None
 
+        self.loss = 'mean_squared_error'
+        self.metrics = ['mean_squared_error']
+
     def get_prefix(self):
         return "square_nn"        
 
     def get_parameter_descriptions(self):
         return self.parameters
+    
+    def get_metrics(self):
+        metrics = self.metrics + ['loss']
+        metrics = metrics + ['val_' + m for m in metrics]
+        return metrics
 
     def prepare_model(self, params, rand_seed=0):
         seed(rand_seed)
@@ -54,23 +62,24 @@ class ScalarSquareNN:
                                   epsilon=None,
                                   decay=0.0,
                                   amsgrad=False)
-        self.model.compile(loss='mean_squared_error',
+        self.model.compile(loss=self.loss,
                            optimizer=optimizer,
-                           metrics=['mean_squared_error'])
+                           metrics=self.metrics)
         self.model.summary()
 
     
     def train_model(self, Xtrain, Ytrain, Xtest, Ytest, epochs=100, verbose=1, filename=None):
         es = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=50)
         mc = ModelCheckpoint(filename + '.h5', monitor='val_loss', mode='min', verbose=0, save_best_only=True)
-        
+        tn = TerminateOnNaN()
+
         hist = self.model.fit(x=Xtrain, y=Ytrain,
                               validation_data=(Xtest, Ytest),
                               verbose=verbose,
                               shuffle=True,
                               batch_size=32,
                               epochs=epochs,
-                              callbacks=[es, mc])
+                              callbacks=[es, mc, tn])
         self.history = hist.history
         return hist
 
