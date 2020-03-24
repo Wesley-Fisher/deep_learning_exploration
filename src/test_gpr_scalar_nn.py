@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import numpy as np
+import math
 import heapq
 import copy
 import statistics
 
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
@@ -72,7 +73,7 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
     def hyper_training(model, suffix, ps, mph, ps_chooser):
         best_val = None
         if len(mph.history) > 0:
-            best_val = mph.get_best('val_loss', dir=-1)
+            best_val = mph.get_best('val_loss', dir=-1)['val_loss']
 
         while len(mph.history) < Num_Iterations:
             params = ps_chooser(ps)
@@ -95,6 +96,9 @@ def run_nn_tests(modeltype, Num_Iterations, N_smallest):
 
             results = {'loss': hist.history['loss'][min_val_loss_i],
                        'val_loss': min_val_loss}
+
+            if math.isnan(results['loss']) or math.isnan(results['val_loss']):
+                continue
             
             uuid = mph.add_sample(params, results)
             mph.save_history()
